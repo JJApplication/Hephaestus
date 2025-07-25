@@ -8,21 +8,25 @@
 
     <!-- 操作按钮区域 -->
     <div class="mb-6 flex flex-wrap gap-4">
-      <button 
+      <UButton 
         @click="showUploadModal = true"
-        class="btn-primary"
+        color="primary"
+        size="lg"
+        icon="i-heroicons-arrow-up-tray"
       >
-        <Icon name="heroicons:arrow-up-tray" class="w-4 h-4 mr-2" />
         上传服务包
-      </button>
-      <button 
+      </UButton>
+      <UButton 
         @click="startScan"
         :disabled="isScanning"
-        class="btn-secondary"
+        :loading="isScanning"
+        variant="outline"
+        color="primary"
+        size="lg"
+        icon="i-heroicons-magnifying-glass"
       >
-        <Icon name="heroicons:magnifying-glass" class="w-4 h-4 mr-2" />
         {{ isScanning ? '扫描中...' : '手动扫描' }}
-      </button>
+      </UButton>
     </div>
 
     <!-- 扫描进度条 -->
@@ -117,63 +121,88 @@
     </div>
 
     <!-- 上传模态框 -->
-    <div v-if="showUploadModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-semibold text-green-400 mb-4">上传服务包</h3>
+    <UModal v-model="showUploadModal">
+      <UCard :ui="{ ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-green-400">上传服务包</h3>
+            <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid" class="-my-1" @click="showUploadModal = false" />
+          </div>
+        </template>
         
-        <form @submit.prevent="uploadPackage">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-300 mb-2">微服务名称</label>
-            <input 
+        <form @submit.prevent="uploadPackage" class="space-y-4">
+          <UFormGroup label="微服务名称" class="mb-4">
+            <UInput 
               v-model="uploadForm.serviceName"
-              type="text" 
-              required
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="输入微服务名称"
-            />
-          </div>
-          
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-300 mb-2">版本号</label>
-            <input 
-              v-model="uploadForm.version"
-              type="text" 
+              size="lg"
               required
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="例如: 1.0.0"
             />
-          </div>
+          </UFormGroup>
+          
+          <UFormGroup label="版本号" class="mb-4">
+            <UInput 
+              v-model="uploadForm.version"
+              placeholder="例如: 1.0.0"
+              size="lg"
+              required
+            />
+          </UFormGroup>
           
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-300 mb-2">选择文件</label>
-            <input 
-              @change="handleFileSelect"
-              type="file" 
-              required
-              accept=".jar,.war,.zip,.tar.gz"
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <UFormGroup label="选择文件" class="mb-4">
+              <div class="flex items-center space-x-3">
+                <input 
+                  ref="fileInput"
+                  type="file" 
+                  @change="handleFileSelect"
+                  accept=".jar,.war,.zip,.tar.gz"
+                  class="hidden"
+                />
+                <UButton 
+                  @click="triggerFileSelect"
+                  variant="outline"
+                  color="primary"
+                  icon="i-heroicons-document-arrow-up"
+                  size="lg"
+                >
+                  {{ uploadForm.file ? uploadForm.file.name : '选择文件' }}
+                </UButton>
+                <span v-if="uploadForm.file" class="text-sm text-gray-400">
+                  {{ (uploadForm.file.size / 1024 / 1024).toFixed(1) }} MB
+                </span>
+              </div>
+              <p class="text-xs text-gray-500 mt-2">支持 .jar, .war, .zip, .tar.gz 格式</p>
+            </UFormGroup>
           </div>
           
+        </form>
+        
+        <template #footer>
           <div class="flex justify-end space-x-3">
-            <button 
-              type="button"
+            <UButton 
+              variant="ghost"
+              color="gray"
               @click="showUploadModal = false"
-              class="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              size="lg"
             >
               取消
-            </button>
-            <button 
+            </UButton>
+            <UButton 
               type="submit"
+              :loading="uploading"
               :disabled="uploading"
-              class="btn-primary"
+              color="primary"
+              size="lg"
+              icon="i-heroicons-arrow-up-tray"
+              @click="uploadPackage"
             >
               {{ uploading ? '上传中...' : '上传' }}
-            </button>
+            </UButton>
           </div>
-        </form>
-      </div>
-    </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
@@ -238,6 +267,13 @@ const toggleService = (serviceName) => {
   const service = services.value.find(s => s.name === serviceName)
   if (service) {
     service.expanded = !service.expanded
+  }
+}
+
+const triggerFileSelect = () => {
+  const fileInput = document.querySelector('input[type="file"]')
+  if (fileInput) {
+    fileInput.click()
   }
 }
 
@@ -351,14 +387,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.btn-primary {
-  @apply bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.btn-secondary {
-  @apply bg-gray-700 hover:bg-gray-600 text-green-400 px-4 py-2 rounded-lg transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
 .container {
   max-width: 1200px;
 }

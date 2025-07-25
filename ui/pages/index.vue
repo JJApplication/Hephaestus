@@ -67,7 +67,7 @@
                 class="microservice-container"
                 :style="{ animationDelay: `${index * 0.5}s` }"
               >
-                <div class="microservice-cube">
+                <div class="microservice-cube" :class="getServiceStatusClass(service.status)">
                   <div class="cube-face cube-front"></div>
                   <div class="cube-face cube-back"></div>
                   <div class="cube-face cube-right"></div>
@@ -77,9 +77,9 @@
                 </div>
                 <div class="cube-shadow"></div>
                 <div class="mt-4 text-center">
-                  <div class="text-sm font-medium text-green-300">{{ service.name }}</div>
-                  <div class="text-xs text-green-400 mt-1">
-                    <span class="inline-block w-2 h-2 bg-green-400 rounded-full mr-1 pulse-animation"></span>
+                  <div class="text-sm font-medium" :class="getServiceTextClass(service.status)">{{ service.name }}</div>
+                  <div class="text-xs mt-1" :class="getServiceTextClass(service.status)">
+                    <span class="inline-block w-2 h-2 rounded-full mr-1 pulse-animation" :class="getServiceIndicatorClass(service.status)"></span>
                     {{ service.status }}
                   </div>
                 </div>
@@ -193,15 +193,57 @@ const networkTraffic = ref(8.3)
 
 // 微服务数据
 const microservices = ref([
-  { name: 'User Service', status: '运行中' },
+  { name: 'User Service', status: '已停止' },
   { name: 'Order Service', status: '运行中' },
   { name: 'Payment Service', status: '运行中' },
-  { name: 'Inventory Service', status: '运行中' },
+  { name: 'Inventory Service', status: '未知' },
   { name: 'Notification Service', status: '运行中' },
-  { name: 'Analytics Service', status: '运行中' },
+  { name: 'Analytics Service', status: '未知' },
   { name: 'Auth Service', status: '运行中' },
-  { name: 'File Service', status: '运行中' }
+  { name: 'File Service', status: '已停止' }
 ])
+
+// 获取服务状态对应的立方体样式类
+const getServiceStatusClass = (status) => {
+  switch (status) {
+    case '运行中':
+      return 'cube-running'
+    case '未知':
+      return 'cube-unknown'
+    case '已停止':
+      return 'cube-stopped'
+    default:
+      return 'cube-running'
+  }
+}
+
+// 获取服务状态对应的文本样式类
+const getServiceTextClass = (status) => {
+  switch (status) {
+    case '运行中':
+      return 'text-green-300'
+    case '未知':
+      return 'text-yellow-300'
+    case '已停止':
+      return 'text-red-300'
+    default:
+      return 'text-green-300'
+  }
+}
+
+// 获取服务状态对应的指示器样式类
+const getServiceIndicatorClass = (status) => {
+  switch (status) {
+    case '运行中':
+      return 'bg-green-400'
+    case '未知':
+      return 'bg-yellow-400'
+    case '已停止':
+      return 'bg-red-400'
+    default:
+      return 'bg-green-400'
+  }
+}
 
 // 基础设施数据
 const infrastructure = ref([
@@ -277,6 +319,86 @@ onMounted(() => {
 
 .microservice-cube {
   animation: float 3s ease-in-out infinite, rotate3d 10s linear infinite;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  transform-style: preserve-3d;
+}
+
+.cube-face {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid;
+  opacity: 0.8;
+}
+
+/* 运行中状态 - 绿色 */
+.cube-running .cube-face {
+  background: linear-gradient(45deg, #10b981, #059669);
+  border-color: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* 未知状态 - 淡黄色 */
+.cube-unknown .cube-face {
+  background: linear-gradient(45deg, #fbbf24, #f59e0b);
+  border-color: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+/* 已停止状态 - 淡红色 */
+.cube-stopped .cube-face {
+  background: linear-gradient(45deg, #f87171, #ef4444);
+  border-color: #f87171;
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.5);
+}
+
+.cube-front {
+  transform: rotateY(0deg) translateZ(30px);
+}
+
+.cube-back {
+  transform: rotateY(180deg) translateZ(30px);
+}
+
+.cube-right {
+  transform: rotateY(90deg) translateZ(30px);
+}
+
+.cube-left {
+  transform: rotateY(-90deg) translateZ(30px);
+}
+
+.cube-top {
+  transform: rotateX(90deg) translateZ(30px);
+}
+
+.cube-bottom {
+  transform: rotateX(-90deg) translateZ(30px);
+}
+
+.cube-shadow {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3), transparent);
+  border-radius: 50%;
+  animation: shadowFloat 3s ease-in-out infinite;
+}
+
+@keyframes shadowFloat {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+    opacity: 0.2;
+  }
 }
 
 /* 数据流动画增强 */
