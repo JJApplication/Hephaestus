@@ -1,0 +1,13 @@
+service: "test"
+version: "1.0"
+build_date: "2020-01-01"
+# 所有文件路径基于服务根目录
+pkg:
+  test_bin: "replace" # 存在则替换
+  test_bin_add: "add" # 不存在则增加 存在则跳过
+  test_bin_del: "del" # 存在则删除
+
+#校验md5
+validate:
+  test_bin: "md5"
+  test_bin_add: "md5"

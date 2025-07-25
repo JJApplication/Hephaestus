@@ -1,0 +1,193 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import '@ibm/plex-sans-sc/css/ibm-plex-sans-sc-all.min.css';
+
+:root {
+  --primary-green: #00ff41;
+  --secondary-green: #00cc33;
+  --dark-green: #003d0f;
+  --bg-dark: #0a0a0a;
+  --bg-darker: #050505;
+  --text-primary: #00ff41;
+  --text-secondary: #66ff66;
+  --shadow-green: rgba(0, 255, 65, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans SC', 'Courier New', 'PingFang SC', 'Microsoft YaHei', sans-serif, monospace;
+  overflow-x: hidden;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-darker);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-green);
+}
+
+/* 动画效果 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes dataFlow {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .pulse-animation {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .data-flow {
+    animation: dataFlow 2s linear infinite;
+  }
+}
+
+/* 微服务立方体样式 */
+@layer components {
+  .microservice-cube {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .cube-face {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+    border: 2px solid var(--primary-green);
+    opacity: 0.8;
+  }
+
+  .cube-front {
+    transform: rotateY(0deg) translateZ(40px);
+  }
+
+  .cube-back {
+    transform: rotateY(180deg) translateZ(40px);
+  }
+
+  .cube-right {
+    transform: rotateY(90deg) translateZ(40px);
+  }
+
+  .cube-left {
+    transform: rotateY(-90deg) translateZ(40px);
+  }
+
+  .cube-top {
+    transform: rotateX(90deg) translateZ(40px);
+  }
+
+  .cube-bottom {
+    transform: rotateX(-90deg) translateZ(40px);
+  }
+
+  .cube-shadow {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 20px;
+    background: radial-gradient(ellipse, var(--shadow-green), transparent);
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+}
+
+/* 数据流箭头 */
+@layer components {
+  .arrow {
+    position: relative;
+    height: 2px;
+    background: var(--primary-green);
+    box-shadow: 0 0 10px var(--shadow-green);
+  }
+
+  .arrow::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid var(--primary-green);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    filter: drop-shadow(0 0 5px var(--shadow-green));
+  }
+}
+
+/* 网格背景 */
+@layer components {
+  .grid-bg {
+    background-image: 
+      linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
+
+/* 发光效果 */
+@layer components {
+  .glow {
+    box-shadow: 0 0 20px var(--shadow-green);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px var(--primary-green);
+  }
+}

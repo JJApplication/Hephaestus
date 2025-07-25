@@ -1,0 +1,14 @@
+service: "test_deep"
+version: "1.0"
+build_date: "2020-01-01"
+# 所有文件路径基于服务根目录
+pkg:
+  test_bin: "replace" # 存在则替换
+  dir1/test_bin_add: "add" # 不存在则增加 存在则跳过
+  dir2/test_bin_del: "delete" # 存在则删除
+  dir3/dir4/test_bin: "replace"
+
+#校验md5
+validate:
+  test_bin: "md5"
+  test_bin_add: "md5"
